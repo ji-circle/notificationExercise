@@ -10,10 +10,12 @@ import android.media.RingtoneManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.util.Log
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.mynotification.databinding.ActivityMainBinding
@@ -40,6 +42,18 @@ class MainActivity : AppCompatActivity() {
         //채널 만드는 게 8.0 이상 부터니까 버전체크
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             // 26 버전 이상
+
+            // 추가한 코드... 사용자 권한 요청 부분. 설정으로 안내함
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                if (!NotificationManagerCompat.from(this).areNotificationsEnabled()) {
+                    // 알림 권한이 없다면, 사용자에게 권한 요청
+                    // Setting 는 android.provider 로 선택하기
+                    val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
+                        putExtra(Settings.EXTRA_APP_PACKAGE, packageName)
+                    }
+                    startActivity(intent)
+                }
+            }
 
             Log.d("Notification", "버전확인")
 
@@ -112,13 +126,13 @@ class MainActivity : AppCompatActivity() {
             )
             //라지아이콘에 사진 넣기
             setLargeIcon(bitmap)
+            //위의 setStyle을 지우고... 이부분은 글 대신 사진을 크게 넣는 코드
 //            setStyle(NotificationCompat.BigPictureStyle()
 //                    .bigPicture(bitmap)
 //                    .bigLargeIcon(null))  // hide largeIcon while expanding
             //걔를 눌렀을 때 펜딩인텐트(intent... secondActivity 호출하는...)
             addAction(R.mipmap.ic_launcher, "Action", pendingIntent)
         }
-
 
         //permission 추가해주기!
         //알림 실행
